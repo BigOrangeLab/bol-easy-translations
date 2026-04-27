@@ -1,0 +1,60 @@
+<?xml version="1.0"?>
+<ruleset name="BOL Easy Translations">
+	<description>PHP_CodeSniffer ruleset for BOL Easy Translations.</description>
+
+	<!-- Scan these files/directories -->
+	<file>.</file>
+
+	<!-- Exclude generated/third-party directories -->
+	<exclude-pattern>*/node_modules/*</exclude-pattern>
+	<exclude-pattern>*/vendor/*</exclude-pattern>
+	<exclude-pattern>*/build/*</exclude-pattern>
+
+	<!-- Show progress and sniff codes in reports -->
+	<arg value="sp"/>
+	<arg name="colors"/>
+	<arg name="extensions" value="php"/>
+
+	<!-- WordPress full standard (Core + Docs + Extra) -->
+	<rule ref="WordPress">
+		<!-- WordPress itself prefers short array syntax [] over array() -->
+		<exclude name="Universal.Arrays.DisallowShortArraySyntax"/>
+		<!-- Allow short ternary / null coalescing -->
+		<exclude name="Universal.Operators.DisallowShortTernary"/>
+	</rule>
+
+	<!-- Variable analysis: catch undefined/unused variables -->
+	<rule ref="VariableAnalysis"/>
+
+	<!-- PHP compatibility: enforce our stated minimum of 7.4 -->
+	<rule ref="PHPCompatibilityWP"/>
+	<config name="testVersion" value="7.4-"/>
+
+	<!-- WordPress minimum version for PHPCompatibilityWP -->
+	<config name="minimum_supported_wp_version" value="6.8"/>
+
+	<!-- Plugin-specific configuration -->
+	<config name="text_domain" value="bol-easy-translations"/>
+
+	<!-- Enforce the correct text domain on all i18n calls -->
+	<rule ref="WordPress.WP.I18n">
+		<properties>
+			<property name="text_domain" type="array">
+				<element value="bol-easy-translations"/>
+			</property>
+		</properties>
+	</rule>
+
+	<!-- Flag any direct DB queries that bypass $wpdb->prepare() -->
+	<rule ref="WordPress.DB.PreparedSQL"/>
+	<rule ref="WordPress.DB.DirectDatabaseQuery"/>
+
+	<!-- Enforce output escaping -->
+	<rule ref="WordPress.Security.EscapeOutput"/>
+
+	<!-- Enforce input sanitisation -->
+	<rule ref="WordPress.Security.ValidatedSanitizedInput"/>
+
+	<!-- Nonce verification -->
+	<rule ref="WordPress.Security.NonceVerification"/>
+</ruleset>

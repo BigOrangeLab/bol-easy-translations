@@ -3,6 +3,8 @@
  * Playground demo-content setup for BOL Easy Translations.
  * Included by blueprint.json's runPHP step after the plugin is installed.
  * wp-load.php is already required by the calling step.
+ *
+ * @package Bol
  */
 
 // ---------------------------------------------------------------------------
@@ -171,7 +173,7 @@ BLOCK;
 
 // ---------------------------------------------------------------------------
 // Section 3: Event announcement with non-Latin scripts
-//   English / Português (BR) / 中文（简体） / 한국어
+// English / Português (BR) / 中文（简体） / 한국어
 // ---------------------------------------------------------------------------
 $section_event = <<<'BLOCK'
 <!-- wp:separator -->
@@ -244,12 +246,14 @@ BLOCK;
 // ---------------------------------------------------------------------------
 // Insert demo page and configure site
 // ---------------------------------------------------------------------------
-$demo_id = wp_insert_post( [
-	'post_title'   => 'BOL Easy Translations — Live Demo',
-	'post_content' => $section_about . "\n\n" . $section_features . "\n\n" . $section_event,
-	'post_status'  => 'publish',
-	'post_type'    => 'page',
-] );
+$demo_id = wp_insert_post(
+	[
+		'post_title'   => 'BOL Easy Translations — Live Demo',
+		'post_content' => $section_about . "\n\n" . $section_features . "\n\n" . $section_event,
+		'post_status'  => 'publish',
+		'post_type'    => 'page',
+	]
+);
 
 update_option( 'show_on_front', 'page' );
 update_option( 'page_on_front', $demo_id );
