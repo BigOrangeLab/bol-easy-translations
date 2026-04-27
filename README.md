@@ -2,6 +2,8 @@
 
 > Localized content blocks with a CSS/JS language switcher for WordPress.
 
+[![Try in WordPress Playground](https://img.shields.io/badge/Try%20in-WordPress%20Playground-3858e9?logo=wordpress&logoColor=white)](https://playground.wordpress.net/?blueprint-url=https://raw.githubusercontent.com/BigOrangeLab/bol-easy-translations/main/.github/blueprint.json)
+
 **Author:** George Stephanis, [Big Orange Lab](https://bigorangelab.com/)  
 **License:** GPL-2.0-or-later  
 **Requires WordPress:** 6.8+  

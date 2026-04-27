@@ -1,0 +1,38 @@
+{
+	"$schema": "https://playground.wordpress.net/blueprint-schema.json",
+	"meta": {
+		"title": "BOL Easy Translations",
+		"author": "Big Orange Lab",
+		"description": "Live demo of the Localized Content and Translation blocks — author content in multiple languages and let visitors switch with one click. Uses navigator.languages to auto-detect preference, localStorage to remember it, and ?lang= in the URL so shared links preserve the language."
+	},
+	"landingPage": "/",
+	"preferredVersions": {
+		"php": "8.3",
+		"wp": "latest"
+	},
+	"steps": [
+		{
+			"step": "login",
+			"username": "admin",
+			"password": "password"
+		},
+		{
+			"step": "installPlugin",
+			"pluginData": {
+				"resource": "git:directory",
+				"url": "https://github.com/BigOrangeLab/bol-easy-translations",
+				"ref": "main",
+				"refType": "branch",
+				"path": "/"
+			},
+			"options": {
+				"activate": true,
+				"targetFolderName": "bol-easy-translations"
+			}
+		},
+		{
+			"step": "runPHP",
+			"code": "<?php require '/wordpress/wp-load.php'; include_once WP_PLUGIN_DIR . '/bol-easy-translations/.github/setup.php';"
+		}
+	]
+}
