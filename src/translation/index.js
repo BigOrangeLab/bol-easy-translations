@@ -5,4 +5,13 @@ import Edit from './edit';
 import save from './save';
 import metadata from './block.json';
 
-registerBlockType( metadata.name, { edit: Edit, save } );
+registerBlockType( metadata.name, {
+	edit: Edit,
+	save,
+	__experimentalLabel( { locale, label } ) {
+		if ( label && locale ) {
+			return `${ label } (${ locale })`;
+		}
+		return label || locale || undefined;
+	},
+} );
