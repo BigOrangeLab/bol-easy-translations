@@ -6,18 +6,18 @@ const URL_PARAM = 'lang';
 // ---------------------------------------------------------------------------
 
 function getLangFromUrl() {
-	return new URLSearchParams( location.search ).get( URL_PARAM );
+	return new URLSearchParams( window.location.search ).get( URL_PARAM );
 }
 
 function setLangInUrl( locale ) {
-	const params = new URLSearchParams( location.search );
+	const params = new URLSearchParams( window.location.search );
 	params.set( URL_PARAM, locale );
 	// replaceState keeps one history entry — back button leaves the page, not
 	// the language. Hash is preserved so on-page anchor links still work.
-	history.replaceState(
+	window.history.replaceState(
 		null,
 		'',
-		`${ location.pathname }?${ params }${ location.hash }`
+		`${ window.location.pathname }?${ params }${ window.location.hash }`
 	);
 }
 
@@ -28,11 +28,15 @@ function setLangInUrl( locale ) {
 /**
  * Returns the index in `locales` that best matches `preferred`, or -1.
  * Tries exact match first, then base-language match (e.g. "es-MX" → "es").
+ * @param {string[]} locales   Array of locale codes from data-locale attributes.
+ * @param {string}   preferred Locale code to match against.
  */
 function matchLocale( locales, preferred ) {
 	const norm = preferred.toLowerCase();
 	const exact = locales.findIndex( ( l ) => l.toLowerCase() === norm );
-	if ( exact !== -1 ) return exact;
+	if ( exact !== -1 ) {
+		return exact;
+	}
 
 	const base = norm.split( '-' )[ 0 ];
 	return locales.findIndex(
@@ -50,6 +54,7 @@ function matchLocale( locales, preferred ) {
  *  4. 0                     (first translation — final fallback)
  *
  * Returns { index, fromUrl } so callers know whether to write the URL.
+ * @param {HTMLElement[]} translations Array of .wp-block-bol-translation elements.
  */
 function resolveInitialIndex( translations ) {
 	const locales = translations.map( ( t ) => t.dataset.locale || '' );
@@ -57,13 +62,17 @@ function resolveInitialIndex( translations ) {
 	const urlLang = getLangFromUrl();
 	if ( urlLang ) {
 		const idx = matchLocale( locales, urlLang );
-		if ( idx !== -1 ) return { index: idx, fromUrl: true };
+		if ( idx !== -1 ) {
+			return { index: idx, fromUrl: true };
+		}
 	}
 
 	const stored = localStorage.getItem( STORAGE_KEY );
 	if ( stored ) {
 		const idx = matchLocale( locales, stored );
-		if ( idx !== -1 ) return { index: idx, fromUrl: false };
+		if ( idx !== -1 ) {
+			return { index: idx, fromUrl: false };
+		}
 	}
 
 	const navLangs = [
@@ -73,10 +82,14 @@ function resolveInitialIndex( translations ) {
 	// Deduplicate while preserving order.
 	const seen = new Set();
 	for ( const lang of navLangs ) {
-		if ( seen.has( lang ) ) continue;
+		if ( seen.has( lang ) ) {
+			continue;
+		}
 		seen.add( lang );
 		const idx = matchLocale( locales, lang );
-		if ( idx !== -1 ) return { index: idx, fromUrl: false };
+		if ( idx !== -1 ) {
+			return { index: idx, fromUrl: false };
+		}
 	}
 
 	return { index: 0, fromUrl: false };
@@ -102,7 +115,8 @@ function initSwitcher( container ) {
 		return;
 	}
 
-	const { index: initialIndex, fromUrl } = resolveInitialIndex( translations );
+	const { index: initialIndex, fromUrl } =
+		resolveInitialIndex( translations );
 
 	// If the initial choice came from navigator.languages (not URL or storage),
 	// write the URL so a copied link opens the same language.

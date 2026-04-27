@@ -6,7 +6,7 @@
 		flex-wrap: wrap;
 		gap: 0;
 		margin-bottom: 1.5em;
-		border-bottom: 2px solid currentColor;
+		border-bottom: 2px solid currentcolor;
 		opacity: 0.9;
 
 		&__tab {
@@ -29,11 +29,11 @@
 			&.is-active {
 				opacity: 1;
 				font-weight: 600;
-				border-bottom-color: currentColor;
+				border-bottom-color: currentcolor;
 			}
 
 			&:focus-visible {
-				outline: 2px solid currentColor;
+				outline: 2px solid currentcolor;
 				outline-offset: 2px;
 				border-radius: 2px;
 			}

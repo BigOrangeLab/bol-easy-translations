@@ -1,5 +1,9 @@
 import { __ } from '@wordpress/i18n';
-import { useBlockProps, InnerBlocks, InspectorControls } from '@wordpress/block-editor';
+import {
+	useBlockProps,
+	InnerBlocks,
+	InspectorControls,
+} from '@wordpress/block-editor';
 import { PanelBody, SelectControl, TextControl } from '@wordpress/components';
 import { LOCALE_OPTIONS, getTabLabel } from './locales';
 
@@ -35,7 +39,9 @@ export default function Edit( { attributes, setAttributes } ) {
 					<TextControl
 						label={ __( 'Tab Label', 'bol-easy-translations' ) }
 						value={ label }
-						onChange={ ( value ) => setAttributes( { label: value } ) }
+						onChange={ ( value ) =>
+							setAttributes( { label: value } )
+						}
 						help={ __(
 							'Overrides the switcher tab text. Defaults to the flag + language name when a language is selected above.',
 							'bol-easy-translations'
