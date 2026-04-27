@@ -21,7 +21,7 @@
 			"pluginData": {
 				"resource": "git:directory",
 				"url": "https://github.com/BigOrangeLab/bol-easy-translations",
-				"ref": "main",
+				"ref": "trunk",
 				"refType": "branch",
 				"path": "/"
 			},

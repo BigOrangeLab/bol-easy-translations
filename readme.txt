@@ -22,7 +22,9 @@ Key features:
 
 * Works entirely with static block markup — no server-side rendering required.
 * Falls back gracefully without JavaScript: the first translation is shown; the rest are hidden via the `hidden` HTML attribute.
-* Language preference is persisted in `localStorage` across page loads.
+* Browser language auto-detected on first visit via `navigator.languages`.
+* Language preference persisted in `localStorage` and in the `?lang=` URL parameter — copied links open in the same language.
+* At least two Translation blocks are always enforced; the editor prevents removing the last two.
 * The `lang` HTML attribute is set on each translation wrapper, which benefits screen readers and search engines.
 * Supports wide and full alignment on the parent block.
 
@@ -31,7 +33,7 @@ Key features:
 1. Upload the `bol-easy-translations` folder to `/wp-content/plugins/`.
 2. Activate the plugin through the **Plugins** screen in WordPress.
 3. In the block editor, search for **Localized Content** and insert it into your post or page.
-4. The block pre-fills with English and Español translation panels. Edit the locale/label in the sidebar and add your content inside each panel.
+4. The block pre-fills with English and Español translation panels. Open the block inspector sidebar to choose a language from the dropdown — the tab label and emoji flag are set automatically. Add your content inside each panel.
 5. Add more Translation blocks inside the Localized Content block for additional languages.
 
 == Frequently Asked Questions ==
@@ -48,9 +50,13 @@ Any block that is normally allowed in post content can be placed inside a Transl
 
 The first Translation block is visible and the rest are hidden via the HTML `hidden` attribute (which browsers honour without JavaScript). Content is accessible; only the tab-switching behaviour requires JavaScript.
 
+= Does the plugin auto-detect my visitor's language? =
+
+Yes. On first visit the view script reads `navigator.languages` (the browser's ordered language preference list) and selects the best matching translation automatically.
+
 = How is the visitor's language preference remembered? =
 
-The view script writes the chosen locale code to `localStorage` under the key `bol-preferred-locale`. On subsequent page loads any Localized Content block on the page will restore that locale if it is present among the available translations.
+The view script writes the chosen locale code to `localStorage` under the key `bol-preferred-locale` and to the `?lang=` URL query parameter via `history.replaceState`. Both persist across page loads; the URL parameter means a copied or shared link will open in the same language on any browser.
 
 = Can I style the language switcher tabs? =
 
