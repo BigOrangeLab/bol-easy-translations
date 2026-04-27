@@ -1,0 +1,27 @@
+.bol-translation-editor {
+	border: 1px solid #ddd;
+	border-radius: 3px;
+	margin-bottom: 8px;
+
+	&__header {
+		display: flex;
+		align-items: center;
+		gap: 6px;
+		padding: 6px 10px;
+		background: #f6f6f6;
+		border-bottom: 1px solid #ddd;
+		font-size: 0.8em;
+	}
+
+	&__label {
+		font-weight: 600;
+	}
+
+	&__locale {
+		font-family: monospace;
+		font-size: 0.9em;
+		background: #e0e0e0;
+		padding: 1px 5px;
+		border-radius: 3px;
+	}
+}

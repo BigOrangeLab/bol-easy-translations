@@ -1,0 +1,21 @@
+{
+	"$schema": "https://schemas.wp.org/trunk/block.json",
+	"apiVersion": 3,
+	"name": "bol/localized-content",
+	"version": "0.1.0",
+	"title": "Localized Content",
+	"category": "text",
+	"icon": "translation",
+	"description": "Container for multiple language translations with a front-end language switcher.",
+	"keywords": [ "translation", "localization", "language", "i18n" ],
+	"example": {},
+	"supports": {
+		"html": false,
+		"align": [ "wide", "full" ]
+	},
+	"textdomain": "bol-easy-translations",
+	"editorScript": "file:./index.js",
+	"editorStyle": "file:./index.css",
+	"style": "file:./style-index.css",
+	"viewScript": "file:./view.js"
+}

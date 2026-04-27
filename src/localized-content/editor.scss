@@ -1,0 +1,16 @@
+.bol-localized-content-editor {
+	padding: 4px;
+	border: 1px dashed #aaa;
+	border-radius: 2px;
+
+	&__label {
+		font-size: 0.75em;
+		font-weight: 600;
+		letter-spacing: 0.05em;
+		text-transform: uppercase;
+		opacity: 0.5;
+		margin-bottom: 8px;
+		padding: 0 4px;
+		pointer-events: none;
+	}
+}
