@@ -6,7 +6,7 @@
 
 **Author:** George Stephanis, [Big Orange Lab](https://bigorangelab.com/)  
 **License:** GPL-2.0-or-later  
-**Requires WordPress:** 6.8+  
+**Requires WordPress:** 7.0+  
 **Requires PHP:** 7.4+
 
 ---
@@ -40,14 +40,14 @@ BOL Easy Translations provides two Gutenberg blocks that let you author the same
 
 ### Auto-translate with AI
 
-If the [AI Services](https://wordpress.org/plugins/ai-services/) plugin (by Felix Arntz) is installed and configured with at least one API key (OpenAI, Google Gemini, Anthropic, etc.):
+BOL Easy Translations uses the **WordPress 7.0 core AI Client** (`WordPress\AiClient\AiClient`) for automatic translation. No third-party AI plugin is required — configure any connector in **Settings > Connectors** (OpenAI, Google Gemini, a local vLLM instance, etc.) and translation is ready to use.
 
 1. Select a **Localized Content** block to reveal its toolbar.
 2. Click the **Auto-translate** (translate icon) toolbar button.
 3. Choose the translation to use as the source, then pick the target language.
 4. Click **Generate Translation** — a new Translation block is inserted with AI-translated content, preserving all inline HTML formatting.
 
-The feature degrades gracefully: the button is always visible, but if AI Services is not installed the modal shows an install notice rather than the form.
+The button is always shown; if no connector is configured the modal explains how to set one up.
 
 ---
 

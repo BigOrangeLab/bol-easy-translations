@@ -156,9 +156,6 @@ export default function Edit( { clientId } ) {
 		),
 	];
 
-	// Detect whether the AI Services plugin is available client-side.
-	const hasAiServices = typeof window !== 'undefined' && !! window.aiServices;
-
 	function openModal() {
 		setErrorMessage( '' );
 		setTargetLocale( '' );
@@ -269,10 +266,10 @@ export default function Edit( { clientId } ) {
 					onRequestClose={ () => setIsModalOpen( false ) }
 					className="bol-translate-modal"
 				>
-					{ ! hasAiServices ? (
+					{ ! hasAiClient ? (
 						<Notice status="warning" isDismissible={ false }>
 							{ __(
-								'The AI Services plugin is required for automatic translation. Please install and activate it from the WordPress plugin directory.',
+								'Auto-translate requires WordPress 7.0 or later with an AI connector configured. Go to Settings > Connectors to set one up.',
 								'bol-easy-translations'
 							) }
 						</Notice>

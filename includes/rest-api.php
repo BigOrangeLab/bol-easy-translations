@@ -2,6 +2,9 @@
 /**
  * REST API endpoint for AI-powered translation.
  *
+ * Uses the WordPress 7.0 core AI Client (WordPress\AiClient\AiClient) for text
+ * generation. Any connector configured in Settings > Connectors is used automatically.
+ *
  * @package Bol
  */
 
@@ -52,16 +55,16 @@ function bol_register_rest_routes() {
 }
 
 /**
- * Translates a set of HTML content items using the configured AI service.
+ * Translates a set of HTML content items using the WordPress core AI Client.
  *
  * @param WP_REST_Request $request REST request containing source_locale, target_locale, and items.
  * @return WP_REST_Response|WP_Error
  */
 function bol_translate_content( WP_REST_Request $request ) {
-	if ( ! function_exists( 'ai_services' ) ) {
+	if ( ! class_exists( 'WordPress\\AiClient\\AiClient' ) ) {
 		return new WP_Error(
-			'ai_services_unavailable',
-			__( 'The AI Services plugin is not installed. Please install and activate it to use auto-translation.', 'bol-easy-translations' ),
+			'ai_client_unavailable',
+			__( 'Auto-translation requires WordPress 7.0 or later.', 'bol-easy-translations' ),
 			[ 'status' => 503 ]
 		);
 	}
@@ -104,35 +107,11 @@ function bol_translate_content( WP_REST_Request $request ) {
 	);
 
 	try {
-		$ai_services = ai_services();
+		$result = \WordPress\AiClient\AiClient::generateTextResult( $prompt );
+		$text   = $result->toText();
 
-		$capability = class_exists( '\Felix_Arntz\AI_Services\Services\API\Enums\AI_Capability' )
-			? \Felix_Arntz\AI_Services\Services\API\Enums\AI_Capability::TEXT_GENERATION
-			: 'text_generation';
-
-		$service = $ai_services->get_available_service(
-			[ 'capabilities' => [ $capability ] ]
-		);
-
-		if ( ! $service ) {
-			return new WP_Error(
-				'no_ai_service',
-				__( 'No AI service with text generation is configured. Please set one up in Settings > AI Services.', 'bol-easy-translations' ),
-				[ 'status' => 503 ]
-			);
-		}
-
-		$model      = $service->get_model( [ 'feature' => 'bol-easy-translations' ] );
-		$candidates = $model->generate_text( $prompt );
-
-		if ( class_exists( '\Felix_Arntz\AI_Services\Services\API\Helpers' ) ) {
-			$contents = \Felix_Arntz\AI_Services\Services\API\Helpers::get_candidate_contents( $candidates );
-			$text     = \Felix_Arntz\AI_Services\Services\API\Helpers::get_text_from_contents( $contents );
-		} else {
-			$text = (string) $candidates;
-		}
-
-		$text = trim( (string) $text );
+		// Strip any markdown code fences the model may have added.
+		$text = trim( $text );
 		$text = (string) preg_replace( '/^```(?:json)?\n?/i', '', $text );
 		$text = (string) preg_replace( '/\n?```$/i', '', $text );
 		$text = trim( $text );
@@ -158,9 +137,9 @@ function bol_translate_content( WP_REST_Request $request ) {
 
 		return rest_ensure_response( [ 'items' => $translated ] );
 
-	} catch ( \Exception $e ) {
+	} catch ( \Throwable $e ) {
 		return new WP_Error(
-			'ai_service_error',
+			'ai_client_error',
 			$e->getMessage(),
 			[ 'status' => 500 ]
 		);

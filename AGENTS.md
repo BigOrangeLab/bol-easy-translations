@@ -18,7 +18,7 @@ It provides two Gutenberg blocks: **Localized Content** (parent) and **Translati
 
 | Path | Purpose |
 |---|---|
-| `bol-easy-translations.php` | Plugin header + `init` hook that registers both blocks + `require_once` for REST API |
+| `bol-easy-translations.php` | Plugin header (requires WP 7.0) + `init` hook that registers both blocks + `enqueue_block_editor_assets` to inject JS flags + `require_once` for REST API |
 | `includes/rest-api.php` | `POST /wp-json/bol/v1/translate` endpoint; uses AI Services plugin for translation |
 | `src/localized-content/` | Parent block source |
 | `src/localized-content/edit.js` | Editor component; includes "Auto-translate" toolbar button and Generate Translation modal |
@@ -99,9 +99,9 @@ The Translation block editor uses a `SelectControl` populated from `src/translat
 - Editor-only styles: `src/*/editor.scss` → compiled into `build/*/index.css` (loaded only in the block editor)
 - BEM-style class names are used: block is `bol-language-switcher`, elements are `bol-language-switcher__tab`
 
-## AI Services auto-translate integration
+## Auto-translate integration (WP 7.0 core AI Client)
 
-The "Auto-translate" toolbar button on `bol/localized-content` generates a new Translation block by calling the WordPress AI Services API (plugin slug: `ai-services` by felixarntz, available on WordPress.org).
+The "Auto-translate" toolbar button on `bol/localized-content` generates a new Translation block by calling the **WordPress 7.0 core AI Client** (`WordPress\AiClient\AiClient`). No third-party AI plugin is required — any connector configured in Settings > Connectors is used automatically.
 
 **How it works:**
 1. `extractTranslatables(blocks, prefix)` walks the source Translation's inner block tree and returns a flat `[{ id, html }]` array. IDs encode the block path (e.g. `"0.2:content"`) so results can be mapped back.
@@ -122,7 +122,7 @@ The "Auto-translate" toolbar button on `bol/localized-content` generates a new T
 | `core/quote` | `citation` |
 | `core/verse` | `content` |
 
-**Graceful degradation:** The modal checks `window.aiServices` (set by the AI Services plugin). If absent, it shows an install notice. The PHP endpoint returns HTTP 503 with an explanatory message when `function_exists('ai_services')` is false or no service is configured.
+**Graceful degradation:** `bol_enqueue_editor_globals()` (hooked on `enqueue_block_editor_assets`) injects `window.bolEasyTranslations.hasAiClient` — a boolean set server-side from `class_exists('WordPress\\AiClient\\AiClient')`. The modal reads this flag; if false it shows a notice pointing to Settings > Connectors. The PHP endpoint returns HTTP 503 when the class is missing and HTTP 500 (with the exception message) if no provider is configured.
 
 **To add support for more block types**, add entries to `TRANSLATABLE_ATTRS` in `src/localized-content/edit.js` — no other files need changing.
 
