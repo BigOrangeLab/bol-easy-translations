@@ -38,6 +38,17 @@ BOL Easy Translations provides two Gutenberg blocks that let you author the same
 4. To add a third (or fourth…) language, use the block appender inside the Localized Content block to insert another Translation block.
 5. At least two Translation blocks must remain — the editor prevents reducing below two.
 
+### Auto-translate with AI
+
+If the [AI Services](https://wordpress.org/plugins/ai-services/) plugin (by Felix Arntz) is installed and configured with at least one API key (OpenAI, Google Gemini, Anthropic, etc.):
+
+1. Select a **Localized Content** block to reveal its toolbar.
+2. Click the **Auto-translate** (translate icon) toolbar button.
+3. Choose the translation to use as the source, then pick the target language.
+4. Click **Generate Translation** — a new Translation block is inserted with AI-translated content, preserving all inline HTML formatting.
+
+The feature degrades gracefully: the button is always visible, but if AI Services is not installed the modal shows an install notice rather than the form.
+
 ---
 
 ## Development
@@ -72,11 +83,13 @@ composer install
 ### Source layout
 
 ```
+includes/
+└── rest-api.php        POST /wp-json/bol/v1/translate — AI Services bridge
 src/
 ├── localized-content/
 │   ├── block.json      Block metadata
 │   ├── index.js        Block registration
-│   ├── edit.js         Editor component
+│   ├── edit.js         Editor component + Auto-translate toolbar & modal
 │   ├── save.js         Static save (front-end markup)
 │   ├── view.js         Front-end switcher script
 │   ├── style.scss      Shared styles (editor + front end)
