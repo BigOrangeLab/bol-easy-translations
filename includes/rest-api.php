@@ -61,14 +61,6 @@ function bol_register_rest_routes() {
  * @return WP_REST_Response|WP_Error
  */
 function bol_translate_content( WP_REST_Request $request ) {
-	if ( ! class_exists( 'WordPress\\AiClient\\AiClient' ) ) {
-		return new WP_Error(
-			'ai_client_unavailable',
-			__( 'Auto-translation requires WordPress 7.0 or later.', 'bol-easy-translations' ),
-			[ 'status' => 503 ]
-		);
-	}
-
 	$source_locale = $request->get_param( 'source_locale' );
 	$target_locale = $request->get_param( 'target_locale' );
 	$raw_items     = $request->get_param( 'items' );

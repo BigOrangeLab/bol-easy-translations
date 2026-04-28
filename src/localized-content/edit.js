@@ -266,63 +266,49 @@ export default function Edit( { clientId } ) {
 					onRequestClose={ () => setIsModalOpen( false ) }
 					className="bol-translate-modal"
 				>
-					{ ! hasAiClient ? (
-						<Notice status="warning" isDismissible={ false }>
-							{ __(
-								'Auto-translate requires WordPress 7.0 or later with an AI connector configured. Go to Settings > Connectors to set one up.',
-								'bol-easy-translations'
-							) }
+					{ errorMessage && (
+						<Notice status="error" isDismissible={ false }>
+							{ errorMessage }
 						</Notice>
-					) : (
-						<>
-							{ errorMessage && (
-								<Notice status="error" isDismissible={ false }>
-									{ errorMessage }
-								</Notice>
-							) }
-							<SelectControl
-								label={ __(
-									'Translate from',
-									'bol-easy-translations'
-								) }
-								value={ sourceClientId }
-								options={ sourceOptions }
-								onChange={ setSourceClientId }
-							/>
-							<SelectControl
-								label={ __(
-									'Translate to',
-									'bol-easy-translations'
-								) }
-								value={ targetLocale }
-								options={ targetLocaleOptions }
-								onChange={ setTargetLocale }
-							/>
-							<div className="bol-translate-modal__footer">
-								{ isTranslating ? (
-									<Spinner />
-								) : (
-									<Button
-										variant="primary"
-										onClick={ handleTranslate }
-										disabled={ ! targetLocale }
-									>
-										{ __(
-											'Generate Translation',
-											'bol-easy-translations'
-										) }
-									</Button>
-								) }
-								<Button
-									variant="secondary"
-									onClick={ () => setIsModalOpen( false ) }
-									disabled={ isTranslating }
-								>
-									{ __( 'Cancel', 'bol-easy-translations' ) }
-								</Button>
-							</div>
-						</>
 					) }
+					<SelectControl
+						label={ __(
+							'Translate from',
+							'bol-easy-translations'
+						) }
+						value={ sourceClientId }
+						options={ sourceOptions }
+						onChange={ setSourceClientId }
+					/>
+					<SelectControl
+						label={ __( 'Translate to', 'bol-easy-translations' ) }
+						value={ targetLocale }
+						options={ targetLocaleOptions }
+						onChange={ setTargetLocale }
+					/>
+					<div className="bol-translate-modal__footer">
+						{ isTranslating ? (
+							<Spinner />
+						) : (
+							<Button
+								variant="primary"
+								onClick={ handleTranslate }
+								disabled={ ! targetLocale }
+							>
+								{ __(
+									'Generate Translation',
+									'bol-easy-translations'
+								) }
+							</Button>
+						) }
+						<Button
+							variant="secondary"
+							onClick={ () => setIsModalOpen( false ) }
+							disabled={ isTranslating }
+						>
+							{ __( 'Cancel', 'bol-easy-translations' ) }
+						</Button>
+					</div>
 				</Modal>
 			) }
 

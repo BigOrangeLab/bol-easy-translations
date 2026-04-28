@@ -28,21 +28,4 @@ function bol_bol_easy_translations_block_init() {
 }
 add_action( 'init', 'bol_bol_easy_translations_block_init' );
 
-/**
- * Injects a `window.bolEasyTranslations` global into the block editor so the
- * Auto-translate toolbar button knows whether the WP core AI Client is available.
- */
-function bol_enqueue_editor_globals() {
-	wp_add_inline_script(
-		'wp-blocks',
-		'window.bolEasyTranslations = ' . wp_json_encode(
-			[
-				'hasAiClient' => class_exists( 'WordPress\\AiClient\\AiClient' ),
-			]
-		) . ';',
-		'after'
-	);
-}
-add_action( 'enqueue_block_editor_assets', 'bol_enqueue_editor_globals' );
-
 require_once __DIR__ . '/includes/rest-api.php';
