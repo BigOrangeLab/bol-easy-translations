@@ -4,15 +4,52 @@ import {
 	InnerBlocks,
 	InspectorControls,
 } from '@wordpress/block-editor';
+import { useSelect } from '@wordpress/data';
 import { PanelBody, SelectControl, TextControl } from '@wordpress/components';
-import { LOCALE_OPTIONS, getTabLabel } from './locales';
+import { LOCALES, getTabLabel } from './locales';
 
-export default function Edit( { attributes, setAttributes } ) {
+export default function Edit( { attributes, setAttributes, clientId } ) {
 	const { locale, label } = attributes;
 
 	const blockProps = useBlockProps( {
 		className: 'bol-translation-editor',
 	} );
+
+	// Collect locales already claimed by sibling Translation blocks.
+	const siblingLocales = useSelect(
+		( select ) => {
+			const { getBlockRootClientId, getBlock } =
+				select( 'core/block-editor' );
+			const parentId = getBlockRootClientId( clientId );
+			if ( ! parentId ) {
+				return [];
+			}
+			return ( getBlock( parentId )?.innerBlocks ?? [] )
+				.filter(
+					( b ) =>
+						b.name === 'bol/translation' && b.clientId !== clientId
+				)
+				.map( ( b ) => b.attributes.locale );
+		},
+		[ clientId ]
+	);
+
+	const takenLocales = new Set( siblingLocales );
+
+	// Keep the block's own current locale in the list so it stays selected;
+	// exclude every locale a sibling already owns.
+	const localeOptions = [
+		{
+			value: '',
+			label: __( '— Select a language —', 'bol-easy-translations' ),
+		},
+		...LOCALES.filter(
+			( l ) => l.value === locale || ! takenLocales.has( l.value )
+		).map( ( l ) => ( {
+			value: l.value,
+			label: `${ l.flag } ${ l.label }`,
+		} ) ),
+	];
 
 	function handleLocaleChange( value ) {
 		setAttributes( {
@@ -33,7 +70,7 @@ export default function Edit( { attributes, setAttributes } ) {
 					<SelectControl
 						label={ __( 'Language', 'bol-easy-translations' ) }
 						value={ locale }
-						options={ LOCALE_OPTIONS }
+						options={ localeOptions }
 						onChange={ handleLocaleChange }
 					/>
 					<TextControl
