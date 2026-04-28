@@ -133,8 +133,16 @@ export default function Edit( { clientId } ) {
 
 	// Keep sourceClientId pointed at a valid block as the set changes.
 	useEffect( () => {
-		if ( ! sourceClientId && translationBlocks.length > 0 ) {
+		if (
+			translationBlocks.length > 0 &&
+			( ! sourceClientId ||
+				! translationBlocks.some(
+					( b ) => b.clientId === sourceClientId
+				) )
+		) {
 			setSourceClientId( translationBlocks[ 0 ].clientId );
+		} else if ( translationBlocks.length === 0 ) {
+			setSourceClientId( '' );
 		}
 	}, [ translationBlocks, sourceClientId ] );
 
@@ -263,7 +271,11 @@ export default function Edit( { clientId } ) {
 						'Generate Translation',
 						'bol-easy-translations'
 					) }
-					onRequestClose={ () => setIsModalOpen( false ) }
+					onRequestClose={ () => {
+						if ( ! isTranslating ) {
+							setIsModalOpen( false );
+						}
+					} }
 					className="bol-translate-modal"
 				>
 					{ errorMessage && (

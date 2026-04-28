@@ -54,6 +54,15 @@ function bol_register_rest_routes() {
 	);
 }
 
+/** Maximum number of items accepted per translate request. */
+const BOL_TRANSLATE_MAX_ITEMS = 100;
+
+/** Maximum HTML character length allowed for a single item. */
+const BOL_TRANSLATE_MAX_ITEM_CHARS = 10000;
+
+/** Maximum total HTML character length across all items. */
+const BOL_TRANSLATE_MAX_TOTAL_CHARS = 100000;
+
 /**
  * Translates a set of HTML content items using the WordPress core AI Client.
  *
@@ -84,6 +93,50 @@ function bol_translate_content( WP_REST_Request $request ) {
 			[ 'status' => 400 ]
 		);
 	}
+
+	if ( count( $items ) > BOL_TRANSLATE_MAX_ITEMS ) {
+		return new WP_Error(
+			'too_many_items',
+			sprintf(
+				/* translators: %d: maximum number of items allowed */
+				__( 'Too many items. Maximum allowed is %d.', 'bol-easy-translations' ),
+				BOL_TRANSLATE_MAX_ITEMS
+			),
+			[ 'status' => 400 ]
+		);
+	}
+
+	$total_chars = 0;
+	foreach ( $items as $item ) {
+		$item_len = mb_strlen( $item['html'], 'UTF-8' );
+		if ( $item_len > BOL_TRANSLATE_MAX_ITEM_CHARS ) {
+			return new WP_Error(
+				'item_too_large',
+				sprintf(
+					/* translators: %d: maximum number of characters per item */
+					__( 'One or more items exceed the maximum allowed length of %d characters.', 'bol-easy-translations' ),
+					BOL_TRANSLATE_MAX_ITEM_CHARS
+				),
+				[ 'status' => 400 ]
+			);
+		}
+		$total_chars += $item_len;
+	}
+
+	if ( $total_chars > BOL_TRANSLATE_MAX_TOTAL_CHARS ) {
+		return new WP_Error(
+			'payload_too_large',
+			sprintf(
+				/* translators: %d: maximum total characters allowed */
+				__( 'Total content exceeds the maximum allowed size of %d characters.', 'bol-easy-translations' ),
+				BOL_TRANSLATE_MAX_TOTAL_CHARS
+			),
+			[ 'status' => 413 ]
+		);
+	}
+
+	// Build an allowlist of the requested IDs so the AI response can be constrained to them.
+	$requested_ids = array_fill_keys( array_column( $items, 'id' ), true );
 
 	$items_json = wp_json_encode( $items );
 	$prompt     = sprintf(
@@ -122,21 +175,40 @@ function bol_translate_content( WP_REST_Request $request ) {
 			);
 		}
 
+		$seen_ids   = [];
 		$translated = array_values(
 			array_filter(
 				$translated,
-				static function ( $item ) {
-					return is_array( $item ) && isset( $item['id'], $item['html'] );
+				static function ( $item ) use ( $requested_ids, &$seen_ids ) {
+					if ( ! is_array( $item ) || ! isset( $item['id'], $item['html'] ) ) {
+						return false;
+					}
+					// Reject IDs the client never sent (hallucinated) and duplicates.
+					if ( ! isset( $requested_ids[ $item['id'] ] ) || isset( $seen_ids[ $item['id'] ] ) ) {
+						return false;
+					}
+					$seen_ids[ $item['id'] ] = true;
+					return true;
 				}
 			)
+		);
+
+		// Sanitize the AI-generated HTML before returning it to the client.
+		$translated = array_map(
+			static function ( $item ) {
+				$item['html'] = wp_kses_post( $item['html'] );
+				return $item;
+			},
+			$translated
 		);
 
 		return rest_ensure_response( [ 'items' => $translated ] );
 
 	} catch ( \Throwable $e ) {
+		error_log( 'BOL Easy Translations: AI translation failed: ' . $e->getMessage() ); // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
 		return new WP_Error(
 			'ai_client_error',
-			$e->getMessage(),
+			__( 'Translation failed due to an internal error. Please try again.', 'bol-easy-translations' ),
 			[ 'status' => 500 ]
 		);
 	}
