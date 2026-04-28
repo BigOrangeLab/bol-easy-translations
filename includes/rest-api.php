@@ -102,6 +102,10 @@ function bol_translate_content( WP_REST_Request $request ) {
 		$result = \WordPress\AiClient\AiClient::generateTextResult( $prompt );
 		$text   = $result->toText();
 
+		// Reasoning models (DeepSeek, QwQ, etc.) prepend their chain-of-thought
+		// inside <think>…</think> blocks before the actual answer.
+		$text = (string) preg_replace( '/<think>.*?<\/think>/is', '', $text );
+
 		// Strip any markdown code fences the model may have added.
 		$text = trim( $text );
 		$text = (string) preg_replace( '/^```(?:json)?\n?/i', '', $text );
