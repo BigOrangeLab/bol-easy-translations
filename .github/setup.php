@@ -188,14 +188,15 @@ $section_event = <<<'BLOCK'
 <h2 class="wp-block-heading">Example 3 — Event Announcement (EN / PT-BR / ZH / KO)</h2>
 <!-- /wp:heading -->
 
+
 <!-- wp:bol/localized-content -->
 <div class="wp-block-bol-localized-content"><!-- wp:bol/translation {"locale":"en","label":"🇺🇸 English"} -->
 <div class="wp-block-bol-translation" data-locale="en" data-label="🇺🇸 English" lang="en"><!-- wp:heading {"level":3} -->
-<h3 class="wp-block-heading">Global Community Meetup — Spring 2025</h3>
+<h3 class="wp-block-heading">Global Community Meetup — Spring 2027</h3>
 <!-- /wp:heading -->
 
 <!-- wp:paragraph -->
-<p>We're hosting our annual global meetup on <strong>May 10th, 2025</strong> in cities across six continents. Join thousands of fellow users for workshops, demos, and networking.</p>
+<p>We're hosting our annual global meetup on <strong>May 15th, 2027</strong> in cities across six continents. Join thousands of fellow users for workshops, demos, and networking.</p>
 <!-- /wp:paragraph -->
 
 <!-- wp:paragraph -->

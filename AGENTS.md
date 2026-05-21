@@ -19,7 +19,7 @@ It provides two Gutenberg blocks: **Localized Content** (parent) and **Translati
 | Path | Purpose |
 |---|---|
 | `bol-easy-translations.php` | Plugin header (requires WP 7.0) + `init` hook that registers both blocks + `enqueue_block_editor_assets` to inject JS flags + `require_once` for REST API |
-| `includes/rest-api.php` | `POST /wp-json/bol/v1/translate` endpoint; uses AI Services plugin for translation |
+| `includes/rest-api.php` | `POST /wp-json/bol/v1/translate` endpoint; uses WordPress core AI Client for translation |
 | `src/localized-content/` | Parent block source |
 | `src/localized-content/edit.js` | Editor component; includes "Auto-translate" toolbar button and Generate Translation modal |
 | `src/localized-content/view.js` | Front-end language switcher (vanilla JS, no dependencies) |
@@ -106,8 +106,19 @@ The "Auto-translate" toolbar button on `bol/localized-content` generates a new T
 **How it works:**
 1. `extractTranslatables(blocks, prefix)` walks the source Translation's inner block tree and returns a flat `[{ id, html }]` array. IDs encode the block path (e.g. `"0.2:content"`) so results can be mapped back.
 2. `applyTranslations(blocks, translationMap, prefix)` re-walks the same tree and uses `createBlock()` to rebuild each block with translated attribute values.
-3. The editor POSTs to `POST /wp-json/bol/v1/translate` via `@wordpress/api-fetch`. The endpoint builds a structured prompt, calls the AI service, and returns `{ items: [{ id, html }] }`.
-4. A new `bol/translation` block is inserted after the last existing translation via `insertBlock(newBlock, translationBlocks.length, clientId)`.
+3. `getBlockGroupKey(id)` extracts the top-level block index from an item ID (e.g. `"2.3.0:content"` → `"2"`). `translateInChunks(items, sourceLocale, targetLocale)` groups items by this key so blocks are never split across requests, then packs whole groups into chunks of at most `CHUNK_MAX_ITEMS` (25) items or `CHUNK_MAX_CHARS` (8 000) HTML characters. Each chunk is POSTed to `/wp-json/bol/v1/translate` sequentially and results are merged into a single translation map.
+4. The PHP endpoint (`includes/rest-api.php`) builds a structured prompt, passes a `ModelConfig` with `chat_template_kwargs: {"enable_thinking": false}` to suppress extended reasoning on thinking models (e.g. Qwen3), calls `AiClient::generateTextResult()`, and returns `{ items: [{ id, html }] }`.
+5. A new `bol/translation` block is inserted after the last existing translation via `insertBlock(newBlock, translationBlocks.length, clientId)`.
+
+**REST API limits** (defined as constants in `includes/rest-api.php`):
+
+| Constant | Value | Purpose |
+|---|---|---|
+| `BOL_TRANSLATE_MAX_ITEMS` | 100 | Max items per single HTTP request |
+| `BOL_TRANSLATE_MAX_ITEM_CHARS` | 10 000 | Max HTML chars for one item |
+| `BOL_TRANSLATE_MAX_TOTAL_CHARS` | 100 000 | Max total HTML chars across all items in one request |
+
+The JS chunking (`CHUNK_MAX_ITEMS` = 25, `CHUNK_MAX_CHARS` = 8 000) keeps individual requests well within these limits while also staying within AI model token budgets.
 
 **Translatable attributes by block type** (defined in `TRANSLATABLE_ATTRS` in `edit.js`):
 
@@ -121,8 +132,6 @@ The "Auto-translate" toolbar button on `bol/localized-content` generates a new T
 | `core/pullquote` | `value`, `citation` |
 | `core/quote` | `citation` |
 | `core/verse` | `content` |
-
-**Graceful degradation:** `bol_enqueue_editor_globals()` (hooked on `enqueue_block_editor_assets`) injects `window.bolEasyTranslations.hasAiClient` — a boolean set server-side from `class_exists('WordPress\\AiClient\\AiClient')`. The modal reads this flag; if false it shows a notice pointing to Settings > Connectors. The PHP endpoint returns HTTP 503 when the class is missing and HTTP 500 (with the exception message) if no provider is configured.
 
 **To add support for more block types**, add entries to `TRANSLATABLE_ATTRS` in `src/localized-content/edit.js` — no other files need changing.
 
