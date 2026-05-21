@@ -127,5 +127,12 @@ The tab bar is intentionally low-specificity so your theme can override it easil
 
 ## Changelog
 
+### 1.0.0
+- AI-powered auto-translation via the WordPress 7.0 core AI Client — configure any connector in Settings > Connectors and generate a full translated language panel in one click.
+- Translation requests are automatically chunked by block (≤ 25 items / ≤ 8 000 HTML characters per request) so long posts never hit model token limits.
+- Extended chain-of-thought reasoning is suppressed for thinking models (Qwen3, DeepSeek-R1, etc.) to prevent request timeouts.
+- Language selector in the Translation block now excludes locales already claimed by sibling translations.
+- Inline HTML formatting (bold, links, code, etc.) is preserved through translation.
+
 ### 0.1.0
 - Initial release.

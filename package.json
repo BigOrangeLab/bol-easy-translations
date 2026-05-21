@@ -1,6 +1,6 @@
 {
 	"name": "bol-easy-translations",
-	"version": "0.1.0",
+	"version": "1.0.0",
 	"description": "Localized content blocks with a language switcher",
 	"author": "George Stephanis, Big Orange Lab <George@bigorangelab.com>",
 	"license": "GPL-2.0-or-later",

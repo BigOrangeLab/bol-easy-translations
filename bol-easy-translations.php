@@ -2,7 +2,7 @@
 /**
  * Plugin Name:       BOL Easy Translations
  * Description:       Localized content blocks with a language switcher
- * Version:           0.1.0
+ * Version:           1.0.0
  * Requires at least: 7.0
  * Requires PHP:      7.4
  * Author:            George Stephanis, Big Orange Lab

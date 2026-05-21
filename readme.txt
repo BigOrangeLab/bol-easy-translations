@@ -2,7 +2,7 @@
 Contributors:      georgestephanis
 Tags:              block, translation, localization, language, i18n, multilingual
 Tested up to:      nightly
-Stable tag:        0.1.0
+Stable tag:        1.0.0
 Requires at least: 7.0
 Requires PHP:      7.4
 License:           GPL-2.0-or-later
@@ -76,6 +76,13 @@ Yes. Content is automatically split into chunks (by block, up to 25 items or 8 0
 Any text-generation model reachable through a configured connector works. The plugin automatically suppresses extended chain-of-thought reasoning on thinking models (such as Qwen3 or DeepSeek-R1) to keep response times fast.
 
 == Changelog ==
+
+= 1.0.0 =
+* AI-powered auto-translation via the WordPress 7.0 core AI Client — configure any connector in Settings > Connectors and generate a full translated language panel in one click.
+* Translation requests are automatically chunked by block (≤ 25 items / ≤ 8 000 HTML characters per request) so long posts never hit model token limits.
+* Extended chain-of-thought reasoning is suppressed for thinking models (Qwen3, DeepSeek-R1, etc.) to prevent request timeouts.
+* Language selector in the Translation block now excludes locales already claimed by sibling translations.
+* Inline HTML formatting (bold, links, code, etc.) is preserved through translation.
 
 = 0.1.0 =
 * Initial release.
