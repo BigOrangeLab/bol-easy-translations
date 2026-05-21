@@ -1,0 +1,21 @@
+# Files and directories excluded from the plugin ZIP distributed to users.
+# wp-scripts plugin-zip uses its own discovery logic, but this file documents
+# intent and is respected by other packaging tools (e.g. wp-env, grunt-contrib-compress).
+
+# Source files — compiled output lives in build/
+src/
+
+# WordPress.org SVN assets — deployed to the /assets/ SVN root, not plugin trunk
+wp-assets/
+
+# Development tooling
+node_modules/
+vendor/
+.github/
+AGENTS.md
+composer.json
+composer.lock
+package.json
+package-lock.json
+phpcs.xml.dist
+*.zip

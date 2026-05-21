@@ -1,4 +1,4 @@
-# BOL Easy Translations
+![BOL Easy Translations](wp-assets/banner.svg)
 
 > Localized content blocks with a CSS/JS language switcher for WordPress.
 
