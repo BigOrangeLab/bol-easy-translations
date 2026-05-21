@@ -40,14 +40,14 @@ BOL Easy Translations provides two Gutenberg blocks that let you author the same
 
 ### Auto-translate with AI
 
-BOL Easy Translations uses the **WordPress 7.0 core AI Client** (`WordPress\AiClient\AiClient`) for automatic translation. No third-party AI plugin is required — configure any connector in **Settings > Connectors** (OpenAI, Google Gemini, a local vLLM instance, etc.) and translation is ready to use.
+BOL Easy Translations uses the **WordPress 7.0 core AI Client** (`WordPress\AiClient\AiClient`) for automatic translation. No third-party AI plugin is required — configure any connector in **Settings > Connectors** (OpenAI, Google Gemini, a local Ollama or LM Studio instance, etc.) and translation is ready to use.
 
 1. Select a **Localized Content** block to reveal its toolbar.
 2. Click the **Auto-translate** (translate icon) toolbar button.
 3. Choose the translation to use as the source, then pick the target language.
 4. Click **Generate Translation** — a new Translation block is inserted with AI-translated content, preserving all inline HTML formatting.
 
-The button is always shown; if no connector is configured the modal explains how to set one up.
+For large posts, content is automatically split into chunks (by block, up to 25 items / 8 000 HTML characters each) and translated in sequential requests, so token limits are never hit regardless of post length.
 
 ---
 

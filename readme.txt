@@ -1,9 +1,9 @@
 === BOL Easy Translations ===
 Contributors:      georgestephanis
 Tags:              block, translation, localization, language, i18n, multilingual
-Tested up to:      6.9
+Tested up to:      nightly
 Stable tag:        0.1.0
-Requires at least: 6.8
+Requires at least: 7.0
 Requires PHP:      7.4
 License:           GPL-2.0-or-later
 License URI:       https://www.gnu.org/licenses/gpl-2.0.html
@@ -27,6 +27,7 @@ Key features:
 * At least two Translation blocks are always enforced; the editor prevents removing the last two.
 * The `lang` HTML attribute is set on each translation wrapper, which benefits screen readers and search engines.
 * Supports wide and full alignment on the parent block.
+* **AI-powered auto-translation** via the WordPress 7.0 core AI Client — configure any connector in Settings > Connectors (OpenAI, Gemini, a local Ollama or LM Studio instance, etc.) and generate a full translated version of any language panel with one click. Large posts are automatically split into smaller chunks to stay within model token limits.
 
 == Installation ==
 
@@ -61,6 +62,18 @@ The view script writes the chosen locale code to `localStorage` under the key `b
 = Can I style the language switcher tabs? =
 
 Yes. The switcher renders as a `<nav class="bol-language-switcher">` containing `<button class="bol-language-switcher__tab">` elements. The active tab also carries the `is-active` class. Override these in your theme stylesheet.
+
+= How does AI auto-translation work? =
+
+The plugin uses the **WordPress 7.0 core AI Client** (`WordPress\AiClient\AiClient`). Any connector configured in **Settings > Connectors** is used automatically — no third-party AI plugin is required. Click the translate icon in the Localized Content block toolbar, choose a source and target language, and click Generate Translation. All inline HTML formatting is preserved; only visible text is translated.
+
+= Does AI translation handle long posts? =
+
+Yes. Content is automatically split into chunks (by block, up to 25 items or 8 000 HTML characters per request) and each chunk is sent as a separate AI call. Results are merged back before the new Translation block is inserted, so the process is transparent regardless of post length.
+
+= Do I need a specific AI model? =
+
+Any text-generation model reachable through a configured connector works. The plugin automatically suppresses extended chain-of-thought reasoning on thinking models (such as Qwen3 or DeepSeek-R1) to keep response times fast.
 
 == Changelog ==
 
