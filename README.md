@@ -6,7 +6,7 @@
 
 **Author:** George Stephanis, [Big Orange Lab](https://bigorangelab.com/)  
 **License:** GPL-2.0-or-later  
-**Requires WordPress:** 6.8+  
+**Requires WordPress:** 7.0+  
 **Requires PHP:** 7.4+
 
 ---
@@ -37,6 +37,17 @@ BOL Easy Translations provides two Gutenberg blocks that let you author the same
 3. Add your content (paragraphs, headings, images, etc.) inside each Translation panel.
 4. To add a third (or fourth…) language, use the block appender inside the Localized Content block to insert another Translation block.
 5. At least two Translation blocks must remain — the editor prevents reducing below two.
+
+### Auto-translate with AI
+
+BOL Easy Translations uses the **WordPress 7.0 core AI Client** (`WordPress\AiClient\AiClient`) for automatic translation. No third-party AI plugin is required — configure any connector in **Settings > Connectors** (OpenAI, Google Gemini, a local vLLM instance, etc.) and translation is ready to use.
+
+1. Select a **Localized Content** block to reveal its toolbar.
+2. Click the **Auto-translate** (translate icon) toolbar button.
+3. Choose the translation to use as the source, then pick the target language.
+4. Click **Generate Translation** — a new Translation block is inserted with AI-translated content, preserving all inline HTML formatting.
+
+The button is always shown; if no connector is configured the modal explains how to set one up.
 
 ---
 
@@ -72,11 +83,13 @@ composer install
 ### Source layout
 
 ```
+includes/
+└── rest-api.php        POST /wp-json/bol/v1/translate — AI Services bridge
 src/
 ├── localized-content/
 │   ├── block.json      Block metadata
 │   ├── index.js        Block registration
-│   ├── edit.js         Editor component
+│   ├── edit.js         Editor component + Auto-translate toolbar & modal
 │   ├── save.js         Static save (front-end markup)
 │   ├── view.js         Front-end switcher script
 │   ├── style.scss      Shared styles (editor + front end)
