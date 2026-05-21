@@ -152,7 +152,17 @@ function bol_translate_content( WP_REST_Request $request ) {
 	);
 
 	try {
-		$result = \WordPress\AiClient\AiClient::generateTextResult( $prompt );
+		/*
+		 * Disable Qwen3/DeepSeek-style extended thinking for translation requests.
+		 * Without this, thinking models spend 30+ seconds on chain-of-thought before
+		 * emitting any output, triggering cURL's low-speed timeout (< 1024 bytes/sec
+		 * for 30 s). The custom option is forwarded verbatim to the OpenAI-compatible
+		 * payload by AbstractOpenAiCompatibleTextGenerationModel::prepareGenerateTextParams().
+		 */
+		$model_config = new \WordPress\AiClient\Providers\Models\DTO\ModelConfig();
+		$model_config->setCustomOption( 'chat_template_kwargs', [ 'enable_thinking' => false ] );
+
+		$result = \WordPress\AiClient\AiClient::generateTextResult( $prompt, $model_config );
 		$text   = $result->toText();
 
 		// Reasoning models (DeepSeek, QwQ, etc.) prepend their chain-of-thought

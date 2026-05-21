@@ -21,6 +21,87 @@ import { LOCALES, getTabLabel } from '../translation/locales';
 
 const ALLOWED_BLOCKS = [ 'bol/translation' ];
 
+/** Max HTML characters to send to the AI per request (≈ 2 000 tokens). */
+const CHUNK_MAX_CHARS = 8000;
+/** Max items per chunk, regardless of character count. */
+const CHUNK_MAX_ITEMS = 25;
+
+/**
+ * Return the top-level block index from an item ID.
+ * IDs look like "2.3.0:content" — the first segment ("2") is the index of the
+ * immediate child block of the translation block, which is our grouping unit.
+ *
+ * @param {string} id Item ID from extractTranslatables.
+ * @return {string}
+ */
+function getBlockGroupKey( id ) {
+	return id.split( '.' )[ 0 ].split( ':' )[ 0 ];
+}
+
+/**
+ * Split items into chunks small enough for a single AI call, then translate
+ * each chunk sequentially and merge the results.
+ *
+ * Items that share a top-level block (same first path segment in their ID) are
+ * always kept together so we never send half a block's content to one AI call
+ * and the other half to another.
+ *
+ * @param {Array}  items         Flat array of { id, html } from extractTranslatables.
+ * @param {string} sourceLocale
+ * @param {string} targetLocale
+ * @return {Promise<Array>} Merged translated { id, html } array.
+ */
+async function translateInChunks( items, sourceLocale, targetLocale ) {
+	// Group items by top-level block so we never split a block across chunks.
+	const groupMap = new Map();
+	for ( const item of items ) {
+		const key = getBlockGroupKey( item.id );
+		if ( ! groupMap.has( key ) ) {
+			groupMap.set( key, [] );
+		}
+		groupMap.get( key ).push( item );
+	}
+	const groups = [ ...groupMap.values() ];
+
+	// Pack whole groups into chunks without splitting any group.
+	const chunks = [];
+	let current = [];
+	let currentChars = 0;
+
+	for ( const group of groups ) {
+		const groupChars = group.reduce( ( sum, item ) => sum + item.html.length, 0 );
+		if (
+			current.length > 0 &&
+			( current.length + group.length > CHUNK_MAX_ITEMS ||
+				currentChars + groupChars > CHUNK_MAX_CHARS )
+		) {
+			chunks.push( current );
+			current = [];
+			currentChars = 0;
+		}
+		current.push( ...group );
+		currentChars += groupChars;
+	}
+	if ( current.length > 0 ) {
+		chunks.push( current );
+	}
+
+	const translated = [];
+	for ( const chunk of chunks ) {
+		const response = await apiFetch( {
+			path: '/bol/v1/translate',
+			method: 'POST',
+			data: {
+				source_locale: sourceLocale,
+				target_locale: targetLocale,
+				items: chunk,
+			},
+		} );
+		translated.push( ...( response.items ?? [] ) );
+	}
+	return translated;
+}
+
 const TEMPLATE = [
 	[ 'bol/translation', { locale: 'en', label: '🇺🇸 English' } ],
 	[ 'bol/translation', { locale: 'es', label: '🇪🇸 Español' } ],
@@ -206,18 +287,14 @@ export default function Edit( { clientId } ) {
 		setErrorMessage( '' );
 
 		try {
-			const response = await apiFetch( {
-				path: '/bol/v1/translate',
-				method: 'POST',
-				data: {
-					source_locale: sourceBlock.attributes.locale,
-					target_locale: targetLocale,
-					items,
-				},
-			} );
+			const translatedItems = await translateInChunks(
+				items,
+				sourceBlock.attributes.locale,
+				targetLocale
+			);
 
 			const translationMap = {};
-			( response.items ?? [] ).forEach( ( item ) => {
+			translatedItems.forEach( ( item ) => {
 				translationMap[ item.id ] = item.html;
 			} );
 
